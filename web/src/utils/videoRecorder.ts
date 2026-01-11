@@ -215,7 +215,7 @@ export class ManifoldVideoRecorder {
     onProgress?.(95);
 
     const videoData = await ffmpeg.readFile(outputName);
-    const videoBlob = new Blob([videoData], { type: 'video/mp4' });
+    const videoBlob = new Blob([videoData as BlobPart], { type: 'video/mp4' });
 
     await ffmpeg.terminate();
 
@@ -375,7 +375,7 @@ export class ManifoldVideoRecorder {
     try {
       const videoData = await ffmpeg.readFile('output.mp4');
       console.log(`Video file size: ${videoData.length} bytes`);
-      const videoBlob = new Blob([videoData], { type: 'video/mp4' });
+      const videoBlob = new Blob([videoData as BlobPart], { type: 'video/mp4' });
       
       onProgress?.(98, 'Cleaning up...');
       await ffmpeg.terminate();

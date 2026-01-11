@@ -51,7 +51,6 @@ export class MelFilterbank {
   }
 
   private createFilters(): Float32Array[] {
-    const nyquist = this.sampleRate / 2.0;
     const freqResolution = this.sampleRate / this.fftSize;
     const nFreqBins = Math.floor(this.fftSize / 2) + 1;
 

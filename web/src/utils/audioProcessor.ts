@@ -46,9 +46,9 @@ export class AudioProcessor {
       }
     };
 
-    this.worker.onerror = (error) => {
+    this.worker.onerror = (error: ErrorEvent) => {
       this.callbacks.forEach(cb => {
-        cb.onError?.(error);
+        cb.onError?.(new Error(error.message || 'Worker error'));
       });
     };
   }

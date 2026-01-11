@@ -48,7 +48,7 @@ function applyHighPassFilter(samples: Float32Array, sampleRate: number, cutoffFr
  * Apply spectral gating to remove background noise
  * Removes frequencies that are consistently quiet (background noise)
  */
-function applySpectralGating(samples: Float32Array, sampleRate: number): Float32Array {
+function applySpectralGating(samples: Float32Array, _sampleRate: number): Float32Array {
   const windowSize = 2048;
   const hopSize = 512;
   const noiseGateThreshold = 0.02; // Amplitude threshold
@@ -201,8 +201,9 @@ async function base64ToSamples(base64Audio: string, sampleRate: number): Promise
 
 /**
  * Convert audio blob to Float32Array samples
+ * @internal - exported but currently unused
  */
-async function blobToSamples(audioBlob: Blob): Promise<Float32Array> {
+export async function blobToSamples(audioBlob: Blob): Promise<Float32Array> {
   // Convert blob to ArrayBuffer
   const arrayBuffer = await audioBlob.arrayBuffer();
   
@@ -227,8 +228,10 @@ async function blobToSamples(audioBlob: Blob): Promise<Float32Array> {
 
 /**
  * Convert blob to base64 string
+ * @internal - exported but currently unused
  */
-function blobToBase64(blob: Blob): Promise<string> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {

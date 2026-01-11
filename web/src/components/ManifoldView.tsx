@@ -997,8 +997,8 @@ function createGradientTrajectory(points: number[][], totalPoints: number): THRE
 function createFrequencyLabel(
   magnitudeFrame: number[],
   sampleRate: number,
-  frameIndex: number,
-  totalFrames: number
+  _frameIndex: number,
+  _totalFrames: number
 ): THREE.Sprite | null {
   if (!magnitudeFrame || magnitudeFrame.length === 0) return null;
 
@@ -1075,9 +1075,9 @@ function updateCameraForRecording(
   camera: THREE.PerspectiveCamera,
   normalized: number[][],
   currentFrame: number,
-  recordingFrame: number,
-  totalFrames: number,
-  options: RecordingOptions,
+  _recordingFrame: number,
+  _totalFrames: number,
+  _options: RecordingOptions,
   smoothedCameraPosRef: React.MutableRefObject<THREE.Vector3 | null>,
   smoothedDirectionRef: React.MutableRefObject<THREE.Vector3 | null>
 ) {

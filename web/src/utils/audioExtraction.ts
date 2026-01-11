@@ -35,15 +35,12 @@ export async function extractAudioNative(file: File): Promise<AudioExtractionRes
 
     // Try to capture audio using MediaRecorder
     // This requires the video to play, which may not work for all codecs
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const source = audioContext.createMediaElementSource(video);
-    
-    // Create a script processor or audio worklet to capture samples
-    // For simplicity, we'll use a workaround with MediaRecorder
-    // However, this approach has limitations on mobile Safari
+    // Note: MediaElementSource approach has limitations on mobile Safari
+    // We'll fall back to ffmpeg.wasm for reliability
     
     // For now, native extraction is unreliable on mobile
     // We'll return null to use ffmpeg fallback
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     URL.revokeObjectURL(videoUrl);
     audioContext.close();
     
@@ -92,7 +89,7 @@ export async function extractAudioFFmpeg(file: File): Promise<AudioExtractionRes
   
   // Read output WAV
   const wavData = await ffmpeg.readFile(outputName);
-  const wavBlob = new Blob([wavData], { type: 'audio/wav' });
+  const wavBlob = new Blob([wavData as BlobPart], { type: 'audio/wav' });
   
   // Decode WAV to Float32Array
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();

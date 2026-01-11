@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { VideoImport } from './components/VideoImport';
 import { ProcessingPanel } from './components/ProcessingPanel';
 import { SpectrogramView } from './components/SpectrogramView';
@@ -9,7 +9,6 @@ import { AudioProcessor } from './utils/audioProcessor';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
   const [processing, setProcessing] = useState<ProcessingProgress | null>(null);
   const [audioResult, setAudioResult] = useState<AudioExtractionResult | null>(null);
   const [spectrogramData, setSpectrogramData] = useState<{ data: number[][]; sampleRate: number } | null>(null);
@@ -27,9 +26,8 @@ function App() {
     };
   }, []);
 
-  const handleVideoSelected = useCallback(async (file: File, meta: VideoMetadata) => {
+  const handleVideoSelected = useCallback(async (file: File, _meta: VideoMetadata) => {
     setSelectedFile(file);
-    setMetadata(meta);
     setError(null);
     setAudioResult(null);
     setSpectrogramData(null);
