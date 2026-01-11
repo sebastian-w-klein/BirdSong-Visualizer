@@ -13,7 +13,6 @@ permissions:
 
 concurrency:
   group: "pages"
-  group_id: "pages"
 
 jobs:
   build:
