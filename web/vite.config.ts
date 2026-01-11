@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Base path for GitHub Pages (update if your repo name changes)
+  base: process.env.NODE_ENV === 'production' ? '/BirdSong-Visualizer/' : '/',
   plugins: [
     react(),
     VitePWA({
