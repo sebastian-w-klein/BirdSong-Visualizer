@@ -139,9 +139,7 @@ Deploy to:
 
 See `web/backend-proxy/README.md` for detailed deployment instructions.
 
-## 📝 License
 
-[Add your license here]
 
 ## 🙏 Acknowledgments
 
