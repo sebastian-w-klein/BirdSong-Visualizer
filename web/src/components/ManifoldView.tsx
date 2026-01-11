@@ -142,13 +142,16 @@ export const ManifoldView: React.FC<ManifoldViewProps> = ({
       }
     }
 
-    // Add orbit controls
+    // Add orbit controls (mouse + touch support)
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
+    let previousTouchDistance = 0;
 
+    // Mouse controls
     const onMouseDown = (e: MouseEvent) => {
       isDragging = true;
       previousMousePosition = { x: e.clientX, y: e.clientY };
+      renderer.domElement.style.cursor = 'grabbing';
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -166,6 +169,7 @@ export const ManifoldView: React.FC<ManifoldViewProps> = ({
 
     const onMouseUp = () => {
       isDragging = false;
+      renderer.domElement.style.cursor = 'grab';
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -175,10 +179,80 @@ export const ManifoldView: React.FC<ManifoldViewProps> = ({
       camera.lookAt(0, 0, 0);
     };
 
+    // Touch controls for mobile
+    const getTouchDistance = (touches: TouchList): number => {
+      if (touches.length < 2) return 0;
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        // Single touch - start rotation
+        isDragging = true;
+        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        // Two touches - start pinch zoom
+        previousTouchDistance = getTouchDistance(e.touches);
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      
+      if (e.touches.length === 1 && isDragging) {
+        // Single touch - rotate
+        const deltaX = e.touches[0].clientX - previousMousePosition.x;
+        const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+        camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), deltaX * 0.01);
+        camera.position.applyAxisAngle(new THREE.Vector3(1, 0, 0), deltaY * 0.01);
+        camera.lookAt(0, 0, 0);
+
+        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        // Two touches - pinch zoom
+        const currentDistance = getTouchDistance(e.touches);
+        if (previousTouchDistance > 0) {
+          const scale = currentDistance / previousTouchDistance;
+          camera.position.multiplyScalar(scale);
+          camera.lookAt(0, 0, 0);
+        }
+        previousTouchDistance = currentDistance;
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      if (e.touches.length === 0) {
+        // All touches ended
+        isDragging = false;
+        previousTouchDistance = 0;
+      } else if (e.touches.length === 1) {
+        // One touch remaining - switch to rotation mode
+        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        previousTouchDistance = 0;
+      }
+    };
+
+    // Mouse event listeners
     renderer.domElement.addEventListener('mousedown', onMouseDown);
     renderer.domElement.addEventListener('mousemove', onMouseMove);
     renderer.domElement.addEventListener('mouseup', onMouseUp);
+    renderer.domElement.addEventListener('mouseleave', onMouseUp); // Handle mouse leaving canvas
     renderer.domElement.addEventListener('wheel', onWheel);
+
+    // Touch event listeners
+    renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: false });
+    renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: false });
+    renderer.domElement.addEventListener('touchend', onTouchEnd, { passive: false });
+    renderer.domElement.addEventListener('touchcancel', onTouchEnd, { passive: false });
+
+    // Set initial cursor style
+    renderer.domElement.style.cursor = 'grab';
+    renderer.domElement.style.touchAction = 'none'; // Prevent default touch behaviors
 
     // Animation function
     const animateTrajectory = (frame: number) => {
@@ -261,10 +335,18 @@ export const ManifoldView: React.FC<ManifoldViewProps> = ({
 
     // Cleanup
     return () => {
+      // Remove mouse event listeners
       renderer.domElement.removeEventListener('mousedown', onMouseDown);
       renderer.domElement.removeEventListener('mousemove', onMouseMove);
       renderer.domElement.removeEventListener('mouseup', onMouseUp);
+      renderer.domElement.removeEventListener('mouseleave', onMouseUp);
       renderer.domElement.removeEventListener('wheel', onWheel);
+      
+      // Remove touch event listeners
+      renderer.domElement.removeEventListener('touchstart', onTouchStart);
+      renderer.domElement.removeEventListener('touchmove', onTouchMove);
+      renderer.domElement.removeEventListener('touchend', onTouchEnd);
+      renderer.domElement.removeEventListener('touchcancel', onTouchEnd);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
